@@ -33,4 +33,6 @@ build/
 .vscode/
 
 
-
+### Credentials ###
+blizzard_credentials.json
+default_character.json
