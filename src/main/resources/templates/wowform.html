@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>WoW Mythic+ Rating</title>
+    <link href="https://fonts.googleapis.com/css?family=Cinzel+Decorative:700|Cinzel:700" rel="stylesheet" />
+    <style>
+        body {
+            background: #18181a url('https://images.blizzard.com/wow/media/wow-default-background.jpg') center/cover no-repeat;
+            color: #FFD700;
+            font-family: 'Cinzel', serif;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: rgba(20, 20, 30, 0.92);
+            max-width: 480px;
+            margin: 60px auto;
+            border-radius: 16px;
+            box-shadow: 0 0 32px #000;
+            padding: 32px;
+            border: 2px solid #8B5C2B;
+        }
+        h1 {
+            text-align: center;
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 32px;
+            color: #FFD700;
+            margin-bottom: 24px;
+        }
+        label {
+            display: block;
+            margin-top: 12px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            margin-top: 4px;
+            font-family: 'Cinzel', serif;
+        }
+        button {
+            background: #8B5C2B;
+            color: #FFD700;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 0;
+            margin-top: 16px;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 2px 8px #000;
+            width: 100%;
+        }
+        .result {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 28px;
+            color: #00FFAA;
+            text-shadow: 0 0 8px #000;
+        }
+        .error {
+            color: #FF5555;
+            text-align: center;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>World of Warcraft Mythic+ Rating</h1>
+    <form th:action="@{/consultar}" method="post" th:object="${params}">
+        <label>Región:
+            <select th:field="*{region}" id="region" onchange="updateLocaleOptions();updateNamespaceValue();">
+                <option value="us">Norteamérica</option>
+                <option value="eu">Europa</option>
+                <option value="kr">Corea</option>
+                <option value="tw">Taiwán</option>
+                <option value="cn">China</option>
+            </select>
+        </label>
+        <label>Reino:
+            <input type="text" th:field="*{realmSlug}" required>
+        </label>
+        <label>Nombre del personaje:
+            <input type="text" th:field="*{characterName}" required>
+        </label>
+        <label>Idioma:
+            <select th:field="*{locale}" id="locale">
+                <!-- Opciones por defecto para Norteamérica -->
+                <option value="en_US" data-region="us">Inglés</option>
+                <option value="es_MX" data-region="us">Español</option>
+                <option value="pt_BR" data-region="us">Portugués</option>
+                <!-- Europa -->
+                <option value="en_GB" data-region="eu" style="display:none;">Inglés</option>
+                <option value="es_ES" data-region="eu" style="display:none;">Español</option>
+                <option value="fr_FR" data-region="eu" style="display:none;">Francés</option>
+                <option value="ru_RU" data-region="eu" style="display:none;">Ruso</option>
+                <option value="de_DE" data-region="eu" style="display:none;">Alemán</option>
+                <option value="pt_PT" data-region="eu" style="display:none;">Portugués</option>
+                <option value="it_IT" data-region="eu" style="display:none;">Italiano</option>
+                <!-- Corea -->
+                <option value="ko_KR" data-region="kr" style="display:none;">Coreano</option>
+                <!-- Taiwán -->
+                <option value="zh_TW" data-region="tw" style="display:none;">Chino tradicional</option>
+                <!-- China -->
+                <option value="zh_CN" data-region="cn" style="display:none;">Chino simplificado</option>
+            </select>
+        </label>
+        <!-- Campo oculto para namespace -->
+        <input type="hidden" id="namespace" name="namespace" th:value="*{namespace}" />
+        <button type="submit">Consultar rating</button>
+    </form>
+    <div th:if="${rating}" class="result">
+        Mythic+ Rating actual:<br>
+        <b th:text="${rating}"
+           th:style="'color:' + ${ratingColor != null ? ratingColor : '#00FFAA'}"></b>
+    </div>
+    <div th:if="${error}" class="error" th:text="${error}"></div>
+</div>
+
+<script>
+function updateLocaleOptions() {
+    var region = document.getElementById('region').value;
+    var localeSelect = document.getElementById('locale');
+    for (var i = 0; i < localeSelect.options.length; i++) {
+        var opt = localeSelect.options[i];
+        if (opt.getAttribute('data-region') === region) {
+            opt.style.display = '';
+        } else {
+            opt.style.display = 'none';
+        }
+    }
+    // Selecciona la primera opción visible
+    for (var i = 0; i < localeSelect.options.length; i++) {
+        if (localeSelect.options[i].style.display !== 'none') {
+            localeSelect.selectedIndex = i;
+            break;
+        }
+    }
+}
+function updateNamespaceValue() {
+    var region = document.getElementById('region').value;
+    var nsInput = document.getElementById('namespace');
+    nsInput.value = "profile-" + region;
+}
+document.addEventListener('DOMContentLoaded', function() {
+    updateLocaleOptions();
+    updateNamespaceValue();
+});
+</script>
+</body>
+</html>
